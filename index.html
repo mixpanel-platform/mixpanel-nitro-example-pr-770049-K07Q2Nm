@@ -48,8 +48,6 @@
       	color:#E44621;
       	font-size:22px;
       	font-weight:normal;
-        padding-left:40px;
-        background:url('../images/logo@2x.png') no-repeat left center;
         background-size:contain;
       }
       
@@ -249,7 +247,7 @@
     
     
           <div id="pageViews" class="inner fixed">
-            <h3 class="abs"><span class="total"></span><span class="unitName">Workflows Created</span></h3>
+            <h3 class="abs"><span class="total"></span><span class="unitName">Workflows Completed</span></h3>
             <div class='circle'></div>
           </div>
         </div>      
@@ -517,7 +515,7 @@
 
   	var pageViews = function() {
   
-  		var resultsContainer  = $('#gamesPlayed h3 span.total'),
+  		var resultsContainer  = $('#pageViews h3 span.total'),
   			dateRange = dateSelect.MPDatepicker('value'),
   			segmentParams = {
   				from : dateRange.from,
@@ -528,7 +526,7 @@
   			var pageViews = resultsObj.sum().values()['Workflow Completed'];
   		    resultsContainer.html('<span>Total</span>' + numberWithCommas(pageViews));
   
-  		    $('#gamesPlayed .circle').circleProgress({
+  		    $('#pageViews .circle').circleProgress({
   			  value: 0.9,
   			  size: 120,
   			  startAngle: Math.PI * 1.5,
