@@ -374,7 +374,7 @@
             params = {
               from: dateRange.from,
               to: dateRange.to,
-              "on": "\"" + domain + "\" in string(user[\"$email\"])", 
+              "on": "\"" + domain + "\" in string(user[\"accountName\"])", 
             }
             MP.api.segment(eventName, params).done(function(results) {
               total = 0;
