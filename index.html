@@ -7,9 +7,217 @@
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
   </head>
   <body class="mixpanel-platform-body">
-    <h1>Hello, World!</h1>
+    <style>
+      h1 {
+        color: #E44621;
+        display: inline-block;
+        font-size: 20px;
+        vertical-align: 22px;
+      }
+      img {
+        display: inline-block;
+        height: 60px;
+      }
+    </style>
+    <div class="mixpanel-platform-section">
+      <img src="http://s29.postimg.org/pthcojijr/logo.png">
+      <h1>Nitro Customer Success | Dashboard</h1>
+    </div>
+    <div class="mixpanel-platform-section">
+      <div class="instructions">
+        <h2 style="font-size: 18px; color: rgb(95,105,131)">Nitro Customer Level Activity</h2>
+        <p style="font-size: 13px; color: rgb(95,105,131)">Select the customer for which you would like to see the top activity.</p>
+      </div>
+      <div id="dateSelect2" style="float: right;"></div>
+      <div id="companySelect" style="margin-bottom: 15px"></div>
+      <div id="byDomain"></div>
+      <div id="byDomainTable"></div>
+    </div>
+    <div class="mixpanel-platform-section">
+      <div class="instructions">
+        <h2 style="font-size: 18px; color: rgb(95,105,131)">Nitro Customer Engagement</h2>
+        <p style="font-size: 13px; color: rgb(95,105,131)">Select the event for which you would like to see the most engaged and least engaged users.</p>
+      </div>
+      <div id="dateSelect" style="float: right;"></div>
+      <div class="event-selects">
+        <div id="event1" style="margin-bottom: 15px"></div>
+      </div>
+      <div class="loading" style="display: none">
+        <p style="font-size: 18px; color: rgb(95,105,131); text-align: center">Loading....</p>
+      </div>
+      <div style="clear: both;"></div>
+      <h1 class="title" style="font-size: 18px; color: rgb(95,105,131); margin-bottom: 15px; display: none">Top Users</h1>
+      <div id="graph1"></div>
+      <div id="table1" style="margin-bottom: 30px"></div>
+      <h1 class="title" style="font-size: 18px; color: rgb(95,105,131); margin: 0 0 15px 5px; display: none">Bottom Users</h1>
+      <div id="graph2" style="margin-bottom: 15px"></div>
+      <div id="table2"></div>
+    </div>
     <script>
-      // Run queries and display results here
+
+      // run through email addresses of all People profiles to get a list of domains
+      var domains = [],
+          companies = [];
+      MP.api.people().done(function(results) {
+        var people = results.values().results;
+        $.each(people, function(i, peopProf) {
+          var company = peopProf.$properties.accountName;
+          if ($.inArray(company, companies) == -1) {
+            companies.push(company);
+          }
+        });
+      });
+
+      // populate event and date dropdowns
+      var event1 = $('#event1').MPEventSelect(),
+          dateSelect  = $('#dateSelect').MPDatepicker(),
+          dateSelect2 = $('#dateSelect2').MPDatepicker(),
+          // set company names
+          companyOptions = {items: [
+            {value: 'default', label: '-- Select a customer --'}
+            ]
+          },
+          // set options for MP graphs and MP tables (to be populated later)
+          topGraph  = $('#graph1').MPChart({chartType: 'line', highchartsOptions: {
+              tooltip: {
+                  backgroundColor: '#fffce7'  // Make tooltip background yellow
+              }
+          }}),
+          topTable = $('#table1').MPTable({
+            showPercentages: true,
+            firstColHeader: 'Event'
+          });
+          bottomGraph  = $('#graph2').MPChart({chartType: 'line', highchartsOptions: {
+              tooltip: {
+                  backgroundColor: '#fffce7'  // Make tooltip background yellow
+              }
+          }}),
+          bottomTable = $('#table2').MPTable({
+            showPercentages: true,
+            firstColHeader: 'Event'
+          }),
+          byDomain = $('#byDomain').MPChart({
+            chartType: 'line',
+            highchartsOptions: {tooltip: {backgroundColor: '#fffce7'}}
+          }),
+          byDomainTable = $('#byDomainTable').MPTable({
+            showPercentages: true,
+            firstColHeader: 'Event'
+          });
+          
+          
+      // populate company name dropdown
+      var companySelect;
+      MP.api.query('/api/2.0/events/properties/values', {name: 'accountName', event: 'Workflow Completed'}).done(function(results) {
+        for (var company in results) {
+          companyOptions.items.push({label: results[company], value: results[company]});
+        }
+        companySelect = $('#companySelect').MPSelect(companyOptions);
+        
+        companySelect.on('change', function() {
+          runDomainQuery();
+        });
+        dateSelect2.on('change', function() {
+          runDomainQuery();
+        });
+
+      });
+
+
+      // get event and date dropdown inputs and run segmentation queries for each domain, then order and display them
+      function runQuery() {
+        var topData = {},
+            botData = {},
+            domainObject = {};
+        
+        // obtain event name and date range values from dropdowns
+        var eventName = event1.MPEventSelect('value'),
+            dateRange = dateSelect.MPDatepicker('value');
+        
+        // set parameters and grab segmentation results for each domain
+        if (eventName) {
+          $.each(domains, function(i, domain) {
+            domainObject[domain] = {};
+            params = {
+              from: dateRange.from,
+              to: dateRange.to,
+              "on": "\"" + domain + "\" in string(user[\"$email\"])", 
+            }
+            MP.api.segment(eventName, params).done(function(results) {
+              total = 0;
+              $.each(results.values(), function(i, dates) {
+                $.each(dates, function(date, num) {
+                  total += num;
+                  domainObject[domain][date] = num;
+                })
+              })
+              domainObject[domain]["total"] = total;
+              // only order data and create graph and table if we've gone through all domains
+              if (domain == domains[domains.length-1]) {
+                $('.loading').hide();
+                
+                // sort activity from highest to lowest
+                var sortable = [];
+                for (var sortDomain in domainObject) {
+                  sortable.push([sortDomain, domainObject[sortDomain]["total"]]);
+                }
+                sortable.sort(function(a, b) {return b[1] - a[1]});
+                
+                // take top and bottom 10 results from sorted list
+                var topDomains = sortable.slice(0, 10);
+                var botDomains = sortable.slice(-10);
+                
+                // add data top top and bottom graphs/tables
+                for (var top in topDomains) {
+                  var topDomain = domainObject[topDomains[top][0]];
+                  var domainName = topDomains[top][0];
+                  delete topDomain["total"];
+                  topData[domainName] = topDomain;
+                }
+                for (var bot in botDomains) {
+                  var botDomain = domainObject[botDomains[bot][0]];
+                  var domainName = botDomains[bot][0];
+                  delete botDomain["total"];
+                  botData[domainName] = botDomain;
+                }
+                $('.title').show();
+                topGraph.MPChart('setData', topData);
+                topTable.MPTable('setData', topData);
+                bottomGraph.MPChart('setData', botData);
+                bottomTable.MPTable('setData', botData);
+              }
+            });
+          });
+        }
+      };
+      
+      // set functions to run when dropdowns change
+      event1.on('change', function(e, eventName) {
+        $('.loading').show();
+        runQuery();
+      });
+      dateSelect.on('change', function() {
+        $('.loading').show();
+        runQuery();
+      });
+
+      function runDomainQuery() {
+        var dateRange2 = dateSelect2.val(),
+            companyName = companySelect.val();
+            
+        if (companyName) {
+          // get all event names 
+          MP.api.query('/api/2.0/events/names').done(function(results) {
+            var allEvents = results;
+            MP.api.query('/api/2.0/events', {event: results, from: dateRange2.from, to: dateRange2.to, unit: 'day', where:'"' + companyName + '" in string(properties["accountName"])'}).done(function(segResults) {
+              byDomain.MPChart('setData', segResults.data.values);
+              byDomainTable.MPTable('setData', segResults.data.values);
+            });
+          });
+        }
+      }
+      
+      
     </script>
   </body>
 </html>
