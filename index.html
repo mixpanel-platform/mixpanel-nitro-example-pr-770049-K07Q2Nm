@@ -18,6 +18,215 @@
         display: inline-block;
         height: 60px;
       }
+      .clearfix:after {
+           visibility: hidden;
+           display: block;
+           font-size: 0;
+           content: " ";
+           clear: both;
+           height: 0;
+           }
+      .clearfix { display: inline-block; }
+      /* start commented backslash hack \*/
+      * html .clearfix { height: 1%; }
+      .clearfix { display: block; }
+      /* close commented backslash hack */
+      
+      body.mixpanel-platform-body {
+      	font: 12px/1.4 'knowledge',Helvetica,Arial,sans-serif;
+      	background:#dee3ec;
+      	padding:10px;
+      }
+      
+      header, section {
+      	background:#f0f2f6;
+      	padding:10px;
+        margin-bottom:10px;
+      }
+      
+      h1 {
+      	color:#930e0e;
+      	font-size:22px;
+      	font-weight:normal;
+        padding-left:40px;
+        background:url('../images/logo@2x.png') no-repeat left center;
+        background-size:contain;
+      }
+      
+      h2 {
+        font-weight: normal;
+        font-size: 16px;
+        color: #747d94;
+        margin-bottom:5px;
+      }
+      
+      h3 {
+        font-weight:200;
+        font-size:23px;
+        color:#930e0e;
+        text-align:center;
+      }
+      
+      h3 span {
+        font-size:16px;
+      }
+      
+      h3.abs {
+        position: absolute;
+        z-index: 1;
+        width: 100%;
+        top: 52px;
+        line-height:21px;
+      }
+      
+      h3.abs.lower {
+        top: 20px;
+        font-size:30px;
+      }
+      
+      h3 span.total {
+        font-size:23px;
+      }
+      
+      h3 span.unitName {
+        font-size:16px;
+        display:block;
+        color: grey;
+      }
+      
+      
+      
+      .moduleContainer {
+        float: left;
+        margin-top:10px;
+      }
+      
+      .moduleContainer .inner {
+        background: #fff;
+        border-radius: 5px;
+        padding: 0;
+        position: relative;
+      }
+      
+      .moduleContainer .inner.fixed {
+        min-height: 130px;
+      }
+      
+      .moduleContainer .inner .graph{
+          height: 80px;
+        padding-top: 50px;
+      }
+      
+      .halfWidth {
+        width:49%;
+        margin-right:1%;
+      }
+      
+      .fullWidth {
+        width:100%;
+      }
+      
+      .quarterWidth {
+        width:24.2%;
+        margin-right:1%;
+      }
+      
+      .thirdWidth {
+        width:32.6%;
+        margin-right:1%;
+      }
+      
+      .twoThirdWidth {
+        width:66%;
+        margin-right:1%;
+      }
+      
+      .threeQuarterWidth {
+        width:100%;
+      }
+      
+      #uniqueUsers {
+        border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+      }
+      
+      #pageViews {
+        border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      }
+      
+      .last {
+        margin-right:0;
+      }
+      
+      table {
+        width:100%;
+      }
+      
+      tr {
+      
+      }
+      
+      td {
+        padding:5px;
+        color:#838ca2;
+        font-size:16px;
+      }
+      
+      td:last-child {
+        text-align:right;
+      }
+      
+      td span {
+        font-size:14px;
+      }
+      
+      td > div {
+        width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      #downloads .inner {
+        min-height:144px;
+      }
+      
+      #downloads p {
+        margin:0;
+        text-align:center;
+        color:#747d94;
+        font-size:14px;
+      }
+      
+      
+      .graph.custom {
+        margin-bottom:30px;
+      }
+      
+      .map, .pie {
+        height:400px;
+       padding-top: 64px;
+      }
+      
+      .circle {
+        text-align:center;
+      }
+      
+      .circle canvas {
+        margin:10px 0;
+      }
+      
+      .threeQuarterWidth .inner {
+        width:33%;
+        float:left;
+          border-radius: 0;
+      }
+      
+      
+      .table {
+      }
+
     </style>
     <div class="mixpanel-platform-section">
       <img src="http://s29.postimg.org/pthcojijr/logo.png">
